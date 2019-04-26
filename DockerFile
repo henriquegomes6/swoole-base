@@ -1,0 +1,22 @@
+FROM php:7.2-fpm
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+RUN set -x \
+    && apt-get update \
+    && apt-get install -y libxml2-dev curl libcurl4-openssl-dev zip unzip openssh-client git\
+    && docker-php-ext-install -j$(nproc) soap curl opcache \
+    && pecl install xdebug-2.6.0 swoole \
+    && docker-php-ext-enable xdebug swoole\
+    && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && php -r "unlink('composer-setup.php');" \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+
+COPY fpm.conf /usr/local/etc/php-fpm.d/www.conf
+
+COPY xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+CMD ["/usr/local/bin/php", "/src/index.php"]

@@ -1,0 +1,6 @@
+{
+    "name": "root/src",
+    "require": {
+        "nikic/fast-route": "^1.3"
+    }
+}
